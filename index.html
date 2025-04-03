@@ -1,0 +1,193 @@
+<html lang="ja_JP"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>ToSchool〜君がそばにいる日常〜</title>
+    <meta name="keywords" content="ブルーアーカイブ, Blue Archive, ブルアカ, エイプリルフール, toschool, ノベルゲーム, ギャルゲー, モブちゃん, 正実モブ, ぶるーあーかいぶ, Yostar, ヨースター, トリニティ, もぶちゃん">
+    <meta name="description" content="正義実現委員会の部員とともに一日を過ごし、新たな絆を築いていこう！">
+    <link rel="icon" href="https://webusstatic.yo-star.com/bluearchive-jp/ba-jp-aprilfools-minigame/prod/minigame-2025/toschool/favicon.png">
+    <!-- OGP -->
+    <meta property="og:url" content="https://bluearchive.jp/toschool/">
+    <meta property="og:title" content="ToSchool〜君がそばにいる日常〜">
+    <meta property="og:description" content="正義実現委員会の部員とともに一日を過ごし、新たな絆を築いていこう！">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://webusstatic.yo-star.com/bluearchive-jp/ba-jp-aprilfools-minigame/prod/minigame-2025/toschool/OGP.png">
+    <meta property="og:locale" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@Blue_ArchiveJP">
+    <meta name="twitter:image" content="https://webusstatic.yo-star.com/bluearchive-jp/ba-jp-aprilfools-minigame/prod/minigame-2025/toschool/OGP.png">
+    <link rel="stylesheet" href="https://webusstatic.yo-star.com/bluearchive-jp/ba-jp-aprilfools-minigame/prod/minigame-2025/toschool/1743132591562.style.css">
+  </head>
+  
+  <body>
+    <div id="portrait-mask" class="hidden">
+      <img src="https://webusstatic.yo-star.com/bluearchive-jp/ba-jp-aprilfools-minigame/prod/minigame-2025/toschool/horizontal.png" class="portrait-mask-img" alt="portrait-mask">
+      <p class="portrait-mask-text">横画面でお楽しみください。</p>
+    </div>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" tabindex="-1" width="1831" height="999" style="width: 1221px; height: 666px; cursor: default;"></canvas>
+      <div id="loading" style="display: none;">
+        <div class="loading-box">
+          <div class="loading-box-text">
+            <p>Now Loading</p>
+          </div>
+          <img src="https://webusstatic.yo-star.com/bluearchive-jp/ba-jp-aprilfools-minigame/prod/minigame-2025/toschool/study_role.png" class="loading-box-img" alt="loading">
+        </div>
+      </div>
+    </div>
+    <script>
+      // Unity配置
+      const UNITY_CONFIG = {
+        buildUrl: ".",
+        loaderUrl: "bb0d9ecdb05db3e84da20bd14a4f84dc.loader.js",
+        dataUrl: "3be0430b2d7e29efc39e2136b5fe7dd0.data",
+        frameworkUrl: "3421ab9513a4ca3fcbd9d259e9837d9a.framework.js",
+        codeUrl: "03b653dd42a0101ed9ca509c384bf36c.wasm",
+        companyName: "Yostar",
+        productName: "ba-jp-aprilfools-minigame",
+        productVersion: "1.0",
+      };
+  
+      // 常量定义
+      const TARGET_WIDTH = 1980;
+      const TARGET_HEIGHT = 1080;
+      const TARGET_ASPECT_RATIO = TARGET_WIDTH / TARGET_HEIGHT;
+  
+      // DOM元素
+      const container = document.querySelector("#unity-container");
+      const canvas = document.querySelector("#unity-canvas");
+      const loadingBar = document.querySelector("#loading");
+      const portraitMask = document.querySelector("#portrait-mask");
+  
+      // Unity实例配置
+      const config = {
+        dataUrl: UNITY_CONFIG.buildUrl + "/" + UNITY_CONFIG.dataUrl,
+        frameworkUrl: UNITY_CONFIG.buildUrl + "/" + UNITY_CONFIG.frameworkUrl,
+        codeUrl: UNITY_CONFIG.buildUrl + "/" + UNITY_CONFIG.codeUrl,
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: UNITY_CONFIG.companyName,
+        productName: UNITY_CONFIG.productName,
+        productVersion: UNITY_CONFIG.productVersion,
+        matchWebGLToCanvasSize: false,
+      };
+  
+      // 节流函数 - 防止频繁触发resize事件
+      function throttle(func, limit = 100) {
+        let inThrottle;
+        return function(...args) {
+          if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+          }
+        };
+      }
+  
+      // 计算画布尺寸
+      function calculateCanvasSize() {
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const windowAspectRatio = windowWidth / windowHeight;
+        
+        let finalWidth, finalHeight;
+        
+        if (windowAspectRatio > TARGET_ASPECT_RATIO) {
+          // 窗口更宽，以高度为基准
+          finalHeight = windowHeight;
+          finalWidth = finalHeight * TARGET_ASPECT_RATIO;
+        } else {
+          // 窗口更高，以宽度为基准
+          finalWidth = windowWidth;
+          finalHeight = finalWidth / TARGET_ASPECT_RATIO;
+        }
+        
+        return { width: finalWidth, height: finalHeight };
+      }
+  
+      // 更新Canvas尺寸
+      function updateCanvasSize(width, height) {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+      }
+  
+      // 检查并处理屏幕方向
+      function handleOrientation() {
+        const isPortrait = window.innerWidth < window.innerHeight;
+        portraitMask.classList.toggle("hidden", !isPortrait);
+      }
+  
+      // 响应式布局处理 - 统一处理函数
+      function handleResize() {
+        const { width, height } = calculateCanvasSize();
+        updateCanvasSize(width, height);
+        handleOrientation();
+      }
+  
+      // 移动端初始化
+      function initMobile() {
+        // 添加移动端视口设置
+        const meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+        document.head.appendChild(meta);
+        
+        // 设置移动端样式
+        document.body.style.textAlign = "left";
+        config.devicePixelRatio = window.devicePixelRatio || 1;
+        container.className = "unity-mobile";
+        
+        // 初始化布局
+        handleResize();
+      }
+  
+      // 桌面端初始化
+      function initDesktop() {
+        container.className = "unity-desktop";
+        handleResize();
+      }
+  
+      // 初始化Unity
+      function initUnity() {
+        loadingBar.style.display = "block";
+        
+        const script = document.createElement("script");
+        script.src = UNITY_CONFIG.buildUrl + "/" + UNITY_CONFIG.loaderUrl;
+        script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {})
+            .then((unityInstance) => {
+              loadingBar.style.display = "none";
+            })
+            .catch((message) => {
+              alert(message);
+            });
+        };
+        document.body.appendChild(script);
+      }
+  
+      // 设备检测并初始化
+      const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini|Windows Phone|SymbianOS|Nokia|SonyEricsson|HTC|LG|Samsung|Motorola|Xiaomi|Huawei|HarmonyOS|OPPO|vivo|Meizu|OnePlus|Nexus/i.test(navigator.userAgent);
+      
+      // 根据设备类型初始化
+      if (isMobile) {
+        initMobile();
+      } else {
+        initDesktop();
+      }
+  
+      // 添加resize事件监听
+      window.addEventListener('resize', throttle(handleResize));
+  
+      // 初始化Unity
+      initUnity();
+    </script><script src="./bb0d9ecdb05db3e84da20bd14a4f84dc.loader.js"></script>
+    <!-- <script
+      src="https://webusstatic.yo-star.com/bluearchive-jp/ba-jp-aprilfools-minigame/prod/minigame-2025/toschool/vconsole.min.js"></script>
+    <script type="text/javascript">
+      // open web debugger console
+      window.VConsole && (window.vConsole = new VConsole());
+    </script> -->
+  
+  
+  <script src="./3421ab9513a4ca3fcbd9d259e9837d9a.framework.js"></script></body></html>
